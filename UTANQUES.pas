@@ -36,6 +36,7 @@ type
     TM_EntradasFECHAHORAINI: TDateTimeField;
     TM_EntradasFECHAHORAFIN: TDateTimeField;
     Timer2: TTimer;
+    TM_TanquesVOLUMENTC: TFloatField;
     procedure ServiceExecute(Sender: TService);
     procedure ServerSocket1ClientRead(Sender: TObject;
       Socket: TCustomWinSocket);
@@ -292,7 +293,7 @@ begin
         tanque.Add('TankID',TM_TanquesCLAVE.AsInteger);
         tanque.Add('Active',True);
         tanque.Add('Volume',TM_TanquesVOLUMEN.AsFloat);
-        tanque.Add('TCVolumen',TM_TanquesVOLUMEN.AsFloat);
+        tanque.Add('TCVolume',TM_TanquesVOLUMENTC.AsFloat);
         tanque.Add('Ullage',TM_TanquesPORLLENAR.AsFloat);
         tanque.Add('VolumeHeight',0);
         tanque.Add('WaterHeight',0);
@@ -570,6 +571,7 @@ begin
         TM_Tanques.Edit;
         TM_TanquesESTATUS.AsString:=copy(lin,20,4);
         TM_TanquesVOLUMEN.AsFloat:=IeeeToFloat(copy(lin,26,8));
+        TM_TanquesVOLUMENTC.AsFloat:=IeeeToFloat(copy(lin,34,8));
         TM_TanquesVOLUMENAGUA.AsFloat:=IeeeToFloat(copy(lin,74,8));
         TM_TanquesPORLLENAR.AsFloat:=IeeeToFloat(copy(lin,42,8));
         TM_TanquesTEMPERATURA.AsFloat:=IeeeToFloat(copy(lin,66,8));
@@ -1101,14 +1103,14 @@ begin
         entrada:=TlkJSONobject.Create;
         entrada.Add('TankId',TM_EntradasTANQUE.AsInteger);
         entrada.Add('StartingDateTime',FormatDateTime('yyyy-mm-dd',TM_EntradasFECHAHORAINI.AsDateTime)+'T'+FormatDateTime('hh:nn:ss.zzz',TM_EntradasFECHAHORAINI.AsDateTime)+'Z');
-        entrada.Add('StartingVolume',TM_EntradasVOLUMENININETO.AsFloat);
-        entrada.Add('StartingTCVolume',TM_EntradasVOLUMENINIBRUTO.AsFloat);
+        entrada.Add('StartingVolume',TM_EntradasVOLUMENINIBRUTO.AsFloat);
+        entrada.Add('StartingTCVolume',TM_EntradasVOLUMENININETO.AsFloat);
         entrada.Add('StartingWater',0);
         entrada.Add('StartingTemperature',TM_EntradasTEMPERATURA.AsFloat);
         entrada.Add('StartingHeight',0);
         entrada.Add('EndingDateTime',FormatDateTime('yyyy-mm-dd',TM_EntradasFECHAHORAFIN.AsDateTime)+'T'+FormatDateTime('hh:nn:ss.zzz',TM_EntradasFECHAHORAFIN.AsDateTime)+'Z');
-        entrada.Add('EndingVolume',TM_EntradasVOLUMENFINNETO.AsFloat);
-        entrada.Add('EndingTCVolume',TM_EntradasVOLUMENFINBRUTO.AsFloat);
+        entrada.Add('EndingVolume',TM_EntradasVOLUMENFINBRUTO.AsFloat);
+        entrada.Add('EndingTCVolume',TM_EntradasVOLUMENFINNETO.AsFloat);
         entrada.Add('EndingWater',0);
         entrada.Add('EndingTemperature',TM_EntradasTEMPERATURA.AsFloat);
         entrada.Add('EndingHeight',0);
@@ -1251,6 +1253,7 @@ begin
   aCrc:=TCRC.Create(CRC16Desc);
   aCrc.CalcBlock(pin,insize);
   Result:=IntToHex(aCrc.Finish,4);
+  aCrc.Destroy;
 end;
 
 function Togcvtanques.Inicializar(json: string): string;
@@ -1291,6 +1294,8 @@ begin
     tanques := js.Field['Tanks'];
 
     Result:=IniciaTanques(tanques);
+
+    tanques.Free;
 
     if Result<>'' then
       Exit;
@@ -1346,6 +1351,7 @@ begin
   hash := idmd5.HashValue(usuario);
   Result := idmd5.AsHex(hash);
   Result := AnsiLowerCase(Result);
+  idmd5.Destroy;
 end;
 
 procedure Togcvtanques.Timer2Timer(Sender: TObject);

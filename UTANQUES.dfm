@@ -31,6 +31,9 @@ object ogcvtanques: Togcvtanques
     object TM_TanquesVOLUMEN: TFloatField
       FieldName = 'VOLUMEN'
     end
+    object TM_TanquesVOLUMENTC: TFloatField
+      FieldName = 'VOLUMENTC'
+    end
     object TM_TanquesVOLUMENAGUA: TFloatField
       FieldName = 'VOLUMENAGUA'
     end
