@@ -13,10 +13,17 @@ object Form1: TForm1
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poMainFormCenter
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object Label1: TLabel
+    Left = 18
+    Top = 56
+    Width = 37
+    Height = 13
+    Caption = 'Licencia'
+  end
   object Button1: TButton
     Left = 401
     Top = 63
@@ -33,7 +40,7 @@ object Form1: TForm1
     Width = 838
     Height = 175
     ItemHeight = 13
-    TabOrder = 4
+    TabOrder = 6
   end
   object Button2: TButton
     Left = 269
@@ -43,7 +50,7 @@ object Form1: TForm1
     Caption = 'Limpiar'
     Default = True
     Enabled = False
-    TabOrder = 5
+    TabOrder = 7
     OnClick = Button2Click
   end
   object Button3: TButton
@@ -54,7 +61,7 @@ object Form1: TForm1
     Caption = 'Guardar'
     Default = True
     Enabled = False
-    TabOrder = 6
+    TabOrder = 8
     OnClick = Button3Click
   end
   object ComboBox1: TComboBox
@@ -80,7 +87,7 @@ object Form1: TForm1
     Width = 121
     Height = 21
     TabOrder = 0
-    Text = '127.0.0.1:8585'
+    Text = '127.0.0.1:1001'
   end
   object ComboBox2: TComboBox
     Left = 200
@@ -95,12 +102,32 @@ object Form1: TForm1
       'DISPENSERS|RUN'
       'DISPENSERS|AUTHORIZE|1|1|50||1|'
       'DISPENSERS|TRACE'
+      'DISPENSERS|STATUS|0'
       'DISPENSERS|STOP|1'
       'DISPENSERS|RESPCMND|1'
       'DISPENSERS|PAYMENT|1'
       'DISPENSERS|TOTALS|1'
       'DISPENSERS|TRANSACTION|1'
-      'DISPENSERS|PRICES|17|18|19||')
+      'DISPENSERS|PRICES|17|18|19||'
+      'DISPENSERS|HALT'
+      'DISPENSERS|TERMINATE'
+      'DISPENSERS|SHUTDOWN')
+  end
+  object CheckBox1: TCheckBox
+    Left = 575
+    Top = 73
+    Width = 97
+    Height = 17
+    Caption = 'Limpio'
+    TabOrder = 4
+  end
+  object Edit1: TEdit
+    Left = 18
+    Top = 75
+    Width = 121
+    Height = 21
+    TabOrder = 5
+    Text = '446766839753401779'
   end
   object ClientSocket1: TClientSocket
     Active = False
