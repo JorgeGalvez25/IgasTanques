@@ -142,7 +142,7 @@ begin
 
     if UpperCase(ExtraeElemStrSep(lic,1,'|'))='FALSE' then begin
       ListaLog.Add('Error al validad licencia: '+ExtraeElemStrSep(lic,2,'|'));
-      ListaLog.SaveToFile(rutaLog+'\LogDispPetRes'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
+      ListaLog.SaveToFile(rutaLog+'\LogTanqPetRes'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
       ServiceThread.Terminate;
       Exit;
     end
@@ -155,11 +155,10 @@ begin
       ServiceThread.ProcessRequests(True);
     ServerSocket1.Active := False;
     CoUninitialize;
-    FreeAndNil(Key);
   except
     on e:Exception do begin
-      ListaLog.Add('Error: '+e.Message);
-      ListaLog.SaveToFile(rutaLog+'\LogDispPetRes'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
+      ListaLog.Add('Error ServiceExecute: '+e.Message);
+      ListaLog.SaveToFile(rutaLog+'\LogTanqPetRes'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
       ServiceThread.Terminate;
       Exit;
     end;
@@ -196,14 +195,14 @@ begin
       Delete(mensaje,Length(mensaje),1);
     if NoElemStrSep(mensaje,'|')>=2 then begin
       if UpperCase(ExtraeElemStrSep(mensaje,1,'|'))<>'TANKS' then begin
-        Responder(Socket,'TANKS|False|Este servicio sólo procesa solicitudes de tanques|');
+        Responder(Socket,'TANKS|False|Este servicio solo procesa solicitudes de tanques|');
         Exit;
       end;
 
       comando:=UpperCase(ExtraeElemStrSep(mensaje,2,'|'));
 
       if chks_invalido then begin
-        Responder(Socket,'TANKS|'+comando+'|False|Checksum inválido|');
+        Responder(Socket,'TANKS|'+comando+'|False|Checksum invalido|');
         Exit;
       end;
 
@@ -249,9 +248,9 @@ begin
   except
     on e:Exception do begin
       if (claveCre<>'') and (key3DES<>'') then
-        AgregaLogPetRes('Error: '+e.Message+'//Clave CRE: '+claveCre+'//Terminacion de Key 3DES: '+copy(key3DES,Length(key3DES)-3,4))
+        AgregaLogPetRes('Error ServerSocket1ClientRead: '+e.Message+'//Clave CRE: '+claveCre+'//Terminacion de Key 3DES: '+copy(key3DES,Length(key3DES)-3,4))
       else
-        AgregaLogPetRes('Error: '+e.Message);
+        AgregaLogPetRes('Error ServerSocket1ClientRead: '+e.Message);
       GuardarLogPetRes;
       Responder(Socket,'TANKS|'+comando+'|False|'+e.Message+'|');
     end;
@@ -270,7 +269,7 @@ begin
   end;
 
   if errorComunicacion then begin
-    Result:='False|Error de Comunicación|';
+    Result:='False|Error de Comunicacion|';
     Exit;
   end;
 
@@ -340,7 +339,7 @@ begin
     puerto:=ExtraeElemStrSep(datosPuerto,2,',');
     if Length(puerto)>=4 then begin
       if StrToIntDef(Copy(puerto,4,Length(puerto)-3),-99)=-99 then begin
-        Result:='False|Favor de indicar un número de puerto correcto|';
+        Result:='False|Favor de indicar un numero de puerto correcto|';
         Exit;
       end
       else
@@ -348,7 +347,7 @@ begin
     end
     else begin
       if StrToIntDef(ExtraeElemStrSep(datosPuerto,2,','),-99)=-99 then begin
-        Result:='False|Favor de indicar un número de puerto correcto|';
+        Result:='False|Favor de indicar un numero de puerto correcto|';
         Exit;
       end
       else
@@ -393,7 +392,7 @@ begin
       pSerial.StopBits:=StrToInt(ExtraeElemStrSep(datosPuerto,6,','));
   except
     on e:Exception do
-      Result:='False|Excepción: '+e.Message+'|';
+      Result:='False|Excepcion: '+e.Message+'|';
   end;
 end;
 
@@ -426,7 +425,7 @@ begin
   except
     on e:Exception do begin
       TM_Tanques.Active:=False;
-      Result:='False|Excepción: '+e.Message+'|';
+      Result:='False|Excepcion: '+e.Message+'|';
     end;
   end;
 end;
@@ -476,7 +475,7 @@ begin
           Sleep(2000);
         end;
       2:begin  // EecoSystems
-          ComandoConsola('10'+inttostr(TM_TanquesCLAVE.AsInteger));
+          ComandoConsola('15'+inttostr(TM_TanquesCLAVE.AsInteger));
         end;
       3:begin  // AutoStik
           ComandoConsola('15'+inttostr(TM_TanquesCLAVE.AsInteger));
@@ -715,6 +714,7 @@ begin
       exit;
     lin:=LineaProc;
     if (copy(Lin,1,3)='E97') then begin // INVANTARIO TANQUES
+      lectRec:=true;
       xtan:=StrToIntDef(copy(lin,4,1),0);
       if xtan=TM_TanquesCLAVE.AsInteger then begin
         TM_Tanques.Edit;
@@ -764,6 +764,8 @@ begin
       end;
     end;
   except
+    on e:Exception do
+      AgregaLog('Error ProcesaLinea2: '+e.Message);
   end;
 end;
 
@@ -777,6 +779,7 @@ begin
       exit;
     lin:=LineaProc;
     if (copy(Lin,1,2)='10') then begin // INVANTARIO TANQUES
+      lectRec:=true;
       xtan:=StrToIntDef(copy(lin,3,1),0);
       if xtan=TM_TanquesCLAVE.AsInteger then begin
         TM_Tanques.Edit;
@@ -858,7 +861,7 @@ begin
                         end
                         else begin
                           inc(conterrorescom);
-                          AgregaLog('Errores de Comunicación: '+inttostr(conterrorescom));
+                          AgregaLog('Errores de Comunicacion: '+inttostr(conterrorescom));
                         end;
                       end;
                 else LineaBuff:=LineaBuff+C;
@@ -928,7 +931,7 @@ begin
                         end
                         else begin
                           inc(conterrorescom);
-                          AgregaLog('Errores de Comunicación: '+inttostr(conterrorescom));
+                          AgregaLog('Errores de Comunicacion: '+inttostr(conterrorescom));
                         end;
                       end;
                 else LineaBuff:=LineaBuff+C;
@@ -952,7 +955,7 @@ begin
                         end
                         else begin
                           inc(conterrorescom);
-                          AgregaLog('Errores de Comunicación: '+inttostr(conterrorescom));
+                          AgregaLog('Errores de Comunicacion: '+inttostr(conterrorescom));
                         end;
                       end;
                 else LineaBuff:=LineaBuff+C;
@@ -963,7 +966,7 @@ begin
     except
       on e:Exception do begin
         SwTimer1:=true;
-        AgregaLog('Excepción pSerialTriggerAvail: '+e.Message);
+        AgregaLog('Excepcion pSerialTriggerAvail: '+e.Message);
       end;
     end;
   finally
@@ -992,6 +995,7 @@ begin
       exit;
     lin:=LineaProc;
     if (copy(Lin,1,2)='18') then begin // INVANTARIO TANQUES
+      lectRec:=true;
       xtan:=StrToIntDef(copy(lin,3,1),0);
       if xtan=TM_TanquesCLAVE.AsInteger then begin
         line:=copy(lin,21,8);
@@ -1045,21 +1049,22 @@ function Togcvtanques.GuardarLog:string;
 begin
   try
     ListaLog.SaveToFile(rutaLog+'\LogTanques'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
-    Result:='True|'+rutaLog+'\LogDisp'+FiltraStrNum(FechaHoraToStr(Now))+'.txt';
+    GuardarLogPetRes;
+    Result:='True|'+rutaLog+'\LogTanq'+FiltraStrNum(FechaHoraToStr(Now))+'.txt';
   except
     on e:Exception do
-      Result:='False|Excepción: '+e.Message+'|';
+      Result:='False|Excepcion: '+e.Message+'|';
   end;
 end;
 
 function Togcvtanques.GuardarLogPetRes:string;
 begin
   try
-    ListaLogPetRes.SaveToFile(rutaLog+'\LogTanquesPetRes'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
+    ListaLogPetRes.SaveToFile(rutaLog+'\LogTanqPetRes'+FiltraStrNum(FechaHoraToStr(Now))+'.txt');
     Result:='True|';
   except
     on e:Exception do
-      Result:='False|Excepción: '+e.Message+'|';
+      Result:='False|Excepcion: '+e.Message+'|';
   end;
 end;
 
@@ -1070,7 +1075,7 @@ begin
     Result:='True|';
   except
     on e:Exception do
-      Result:='False|Excepción: '+e.Message+'|';
+      Result:='False|Excepcion: '+e.Message+'|';
   end;  
 end;
 
@@ -1086,12 +1091,12 @@ begin
   end;
 
   if errorComunicacion then begin
-    Result:='False|Error de Comunicación|';
+    Result:='False|Error de Comunicacion|';
     Exit;
   end;
   
   if tanque<0 then begin
-    Result:='False|Favor de indicar el número de tanque|';
+    Result:='False|Favor de indicar el numero de tanque|';
     Exit;
   end;
 
@@ -1137,7 +1142,7 @@ function Togcvtanques.Detener: string;
 begin
   try
     if estado=-1 then begin
-      Result:='False|El proceso no se ha iniciado aún|';
+      Result:='False|El proceso no se ha iniciado aun|';
       Exit;
     end;
 
@@ -1148,7 +1153,7 @@ begin
       Result:='True|';
     end
     else
-      Result:='False|El proceso ya había sido detenido|'
+      Result:='False|El proceso ya habia sido detenido|'
   except
     on e:Exception do
       Result:='False|'+e.Message+'|';
@@ -1166,7 +1171,7 @@ var
   i:Integer;
 begin
   if r=0 then begin
-    Result:='False|No se indicó el número de registros|';
+    Result:='False|No se indico el numero de registros|';
     Exit;
   end;
 
@@ -1189,7 +1194,7 @@ var
   i:Integer;
 begin
   if r=0 then begin
-    Result:='False|No se indicó el número de registros|';
+    Result:='False|No se indico el numero de registros|';
     Exit;
   end;
 
@@ -1211,7 +1216,7 @@ function Togcvtanques.Iniciar: string;
 begin
   try
     if estado=1 then begin
-      Result:='False|El proceso ya se encuentra en ejecución|';
+      Result:='False|El proceso ya se encuentra en ejecucion|';
       Exit;
     end;
 
@@ -1264,7 +1269,7 @@ var
 begin
   try
     if estado>-1 then begin
-      Result:='False|El servicio ya había sido inicializado.|';
+      Result:='False|El servicio ya habia sido inicializado.|';
       Exit;
     end;
 
@@ -1304,14 +1309,14 @@ begin
     Result:='True|';
   except
     on e:Exception do
-      Result:='False|Excepción: '+e.Message+'|';
+      Result:='False|Excepcion: '+e.Message+'|';
   end;
 end;
 
 function Togcvtanques.Shutdown: string;
 begin
   if estado>0 then
-    Result:='False|El servicio está en proceso, no fue posible detenerlo|'
+    Result:='False|El servicio esta en proceso, no fue posible detenerlo|'
   else begin
     ServiceThread.Terminate;
     Result:='True|';
@@ -1335,7 +1340,7 @@ begin
   usuario:=ExtraeElemStrSep(mensaje,3,'|');
   password:=ExtraeElemStrSep(mensaje,4,'|');
   if MD5(usuario+'|'+FormatDateTime('yyyy-mm-dd',Date)+'T'+FormatDateTime('hh:nn',Now))<>password then
-    Result:='False|Password inválido|'
+    Result:='False|Password invalido|'
   else begin
     Token:=MD5(usuario+'|'+FormatDateTime('yyyy-mm-dd',Date)+'T'+FormatDateTime('hh:nn',Now));
     Result:='True|';
@@ -1358,7 +1363,7 @@ procedure Togcvtanques.Timer2Timer(Sender: TObject);
 begin
   if not ServerSocket1.Active then begin
     ServerSocket1.Active:=True;
-    AgregaLog('Se reinició socket');
+    AgregaLog('Se reinicio socket');
     GuardarLog;
   end;
 end;
