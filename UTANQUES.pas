@@ -173,7 +173,7 @@ procedure Togcvtanques.ServerSocket1ClientRead(Sender: TObject;
     chks_invalido:Boolean;
 begin
   try
-    mensaje:=Key.Decrypt(ExtractFilePath(ParamStr(0)),key3DES,Socket.ReceiveText);
+    mensaje:=Socket.ReceiveText;
     AgregaLogPetRes('R '+mensaje);
     for i:=1 to Length(mensaje) do begin
       if mensaje[i]=#2 then begin
@@ -219,9 +219,9 @@ begin
       else if comando='SAVELOGREQ' then
         Responder(Socket,'TANKS|SAVELOGREQ|'+GuardarLogPetRes)
       else if comando='LOG' then
-        Socket.SendText(Key.Encrypt(ExtractFilePath(ParamStr(0)),key3DES,'TANKS|LOG|'+ObtenerLog(StrToIntDef(ExtraeElemStrSep(mensaje,3,'|'),0))))
+        Socket.SendText('TANKS|LOG|'+ObtenerLog(StrToIntDef(ExtraeElemStrSep(mensaje,3,'|'),0)))
       else if comando='LOGREQ' then
-        Socket.SendText(Key.Encrypt(ExtractFilePath(ParamStr(0)),key3DES,'TANKS|LOGREQ|'+ObtenerLogPetRes(StrToIntDef(ExtraeElemStrSep(mensaje,3,'|'),0))))
+        Socket.SendText('TANKS|LOGREQ|'+ObtenerLogPetRes(StrToIntDef(ExtraeElemStrSep(mensaje,3,'|'),0)))
       else if comando='CLEARLOG' then
         Responder(Socket,'TANKS|CLEARLOG|'+BorrarLog)
       else if comando='DELIVERIES' then
@@ -1162,7 +1162,7 @@ end;
 
 procedure Togcvtanques.Responder(socket:TCustomWinSocket;resp:string);
 begin
-  socket.SendText(Key.Encrypt(ExtractFilePath(ParamStr(0)),key3DES,#1#2+resp+#3+CRC16(resp)+#23));
+  socket.SendText(#1#2+resp+#3+CRC16(resp)+#23);
   AgregaLogPetRes('E '+#1#2+resp+#3+CRC16(resp)+#23);
 end;
 
